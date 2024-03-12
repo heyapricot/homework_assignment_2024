@@ -1,4 +1,7 @@
 class Api::V1::CompaniesController < ApplicationController
+  before_action :require_api_token!, only: :index
+  before_action :authenticate_request!, only: :index
+
   def index
     render json: companies.as_json(include: :deals)
   end
