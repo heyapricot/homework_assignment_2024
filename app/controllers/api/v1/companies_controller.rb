@@ -15,7 +15,8 @@ class Api::V1::CompaniesController < ApplicationController
       query: [
         :employee_count,
         :industry,
-        :name
+        :name,
+        :total_deal_amount
       ]
     )
   end
@@ -24,7 +25,8 @@ class Api::V1::CompaniesController < ApplicationController
     {
       employee_count: 0,
       industry: "",
-      name: ""
+      name: "",
+      total_deal_amount: 0
     }.merge(
       company_params[:query] || {}
     ).symbolize_keys
