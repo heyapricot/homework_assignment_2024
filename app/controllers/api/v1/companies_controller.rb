@@ -1,6 +1,5 @@
 class Api::V1::CompaniesController < ApplicationController
   def index
-    companies.order(created_at: :desc)
     render json: companies.as_json(include: :deals)
   end
 
@@ -13,12 +12,17 @@ class Api::V1::CompaniesController < ApplicationController
 
   def company_params
     params.permit(
-      query: [:industry, :name]
+      query: [
+        :employee_count,
+        :industry,
+        :name
+      ]
     )
   end
 
   def filter_hash
     {
+      employee_count: 0,
       industry: "",
       name: ""
     }.merge(
