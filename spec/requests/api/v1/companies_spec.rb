@@ -89,6 +89,46 @@ RSpec.describe "Api::V1::Companies", type: :request do
           expect(json_response).not_to include(*unexpected_data)
         end
       end
+
+      describe "filtering by minimum employee count" do
+        let(:threshold) { companies.map(&:employee_count).sample }
+        let(:selected) { companies.select { |company| company.employee_count >= threshold } }
+        let(:unselected) { companies.reject { |company| company.employee_count >= threshold } }
+
+        before { get api_v1_companies_path, params: {query: {employee_count: threshold}} }
+
+        let(:expected_data) do
+          selected.map do |company|
+            a_hash_including(
+              "id" => company.id,
+              "name" => company.name,
+              "employee_count" => company.employee_count,
+              "industry" => company.industry
+            )
+          end
+        end
+
+        let(:unexpected_data) do
+          unselected.map do |company|
+            a_hash_including(
+              "id" => company.id,
+              "name" => company.name,
+              "employee_count" => company.employee_count,
+              "industry" => company.industry
+            )
+          end
+        end
+
+        let(:json_response) { JSON.parse(response.body) }
+
+        it "returns the companies with an employee count higher or equal to the param" do
+          expect(json_response).to include(*expected_data)
+        end
+
+        it "does not return companies with an employee count lower than the param" do
+          expect(json_response).not_to include(*unexpected_data)
+        end
+      end
     end
   end
 end
