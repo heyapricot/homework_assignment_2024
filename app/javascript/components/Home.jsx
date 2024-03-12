@@ -7,18 +7,36 @@ export default () => {
   // Table filters
   const [companyName, setCompanyName] = useState("");
   const [industry, setIndustry] = useState("");
-  const [minEmployee, setMinEmployee] = useState("");
-  const [minimumDealAmount, setMinimumDealAmount] = useState("");
+  const [minEmployee, setMinEmployee] = useState("0");
+  const [minimumDealAmount, setMinimumDealAmount] = useState("0");
+
+  const addQueryKeyToParams = (params) => {
+    return Object.fromEntries(
+      Object.entries(params).map(([key, value]) => {
+        return [`query[${key}]`, value];
+      })
+    );
+  }
+
+  const queryParams = () => {
+    return {
+      employee_count: minEmployee,
+      industry: industry,
+      name: companyName,
+      total_deal_amount: minimumDealAmount
+    }
+  }
 
   // Fetch companies from API
   useEffect(() => {
-    const url = "/api/v1/companies";
-    fetch(url)
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => setCompanies(res))
-  }, [])
+    const fetchCompanies = async () => {
+      const url = `/api/v1/companies?${new URLSearchParams(addQueryKeyToParams(queryParams())).toString()}`;
+      const response = await fetch(url);
+      const json = await response.json();
+      setCompanies(json);
+    }
+    fetchCompanies();
+  }, [companyName, industry, minEmployee, minimumDealAmount]);
 
   return (
     <div className="vw-100 primary-color d-flex align-items-center justify-content-center">
