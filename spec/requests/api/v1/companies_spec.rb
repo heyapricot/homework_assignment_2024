@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Api::V1::Companies", type: :request do
   describe "GET /api/v1/companies" do
@@ -8,44 +8,86 @@ RSpec.describe "Api::V1::Companies", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    let!(:companies) { create_list(:company, 3) }
+    describe "filtering" do
+      let!(:companies) { create_list(:company, 5) }
 
-    describe "filtering by name" do
-      let(:selected) { companies.sample }
-      let(:unselected) { companies - [selected] }
+      describe "filtering by name" do
+        let(:selected) { companies.sample }
+        let(:unselected) { companies - [selected] }
 
-      before { get api_v1_companies_path, params: { query: { name: selected.name } } }
+        before { get api_v1_companies_path, params: {query: {name: selected.name}} }
 
-      let(:expected_data) do
-        [
-          a_hash_including(
-            "id" => selected.id,
-            "name" => selected.name,
-            "employee_count" => selected.employee_count,
-            "industry" => selected.industry,
+        let(:expected_data) do
+          [
+            a_hash_including(
+              "id" => selected.id,
+              "name" => selected.name,
+              "employee_count" => selected.employee_count,
+              "industry" => selected.industry
             )
-        ]
-      end
+          ]
+        end
 
-      let(:unexpected_data) do
-        unselected.map do |company|
-          a_hash_including(
-            "id" => company.id,
-            "name" => company.name,
-            "employee_count" => company.employee_count,
-            "industry" => company.industry,
-          )
+        let(:unexpected_data) do
+          unselected.map do |company|
+            a_hash_including(
+              "id" => company.id,
+              "name" => company.name,
+              "employee_count" => company.employee_count,
+              "industry" => company.industry
+            )
+          end
+        end
+
+        let(:json_response) { JSON.parse(response.body) }
+
+        it "returns the companies that match the name" do
+          expect(json_response).to include(*expected_data)
+        end
+
+        it "does not return companies that do not match the name" do
+          expect(json_response).not_to include(*unexpected_data)
         end
       end
 
-      let(:json_response) { JSON.parse(response.body) }
+      describe "filtering by industry" do
+        let(:industry) { companies.map(&:industry).sample }
+        let(:selected) { companies.select { |company| company.industry == industry } }
+        let(:unselected) { companies.reject { |company| company.industry == industry } }
 
-      it "returns the companies that match the name" do
-        expect(json_response).to include(*expected_data)
-      end
+        before { get api_v1_companies_path, params: {query: {industry:}} }
 
-      it "does not return companies that do not match the name" do
-        expect(json_response).not_to include(*unexpected_data)
+        let(:expected_data) do
+          selected.map do |company|
+            a_hash_including(
+              "id" => company.id,
+              "name" => company.name,
+              "employee_count" => company.employee_count,
+              "industry" => company.industry
+            )
+          end
+        end
+
+        let(:unexpected_data) do
+          unselected.map do |company|
+            a_hash_including(
+              "id" => company.id,
+              "name" => company.name,
+              "employee_count" => company.employee_count,
+              "industry" => company.industry
+            )
+          end
+        end
+
+        let(:json_response) { JSON.parse(response.body) }
+
+        it "returns the companies that match the industry" do
+          expect(json_response).to include(*expected_data)
+        end
+
+        it "does not return companies that do not match the industry" do
+          expect(json_response).not_to include(*unexpected_data)
+        end
       end
     end
   end
