@@ -37,7 +37,7 @@ export default () => {
         setCompanies(json);
       }, 500
     )
-    
+
     return () => clearTimeout(fetchCompanies);
   }, [companyName, industry, minEmployee, minimumDealAmount]);
 
@@ -59,12 +59,24 @@ export default () => {
 
           <label htmlFor="min-employee">Minimum Employee Count</label>
           <div className="input-group mb-3">
-            <input type="text" className="form-control" id="min-employee" value={minEmployee} onChange={e => setMinEmployee(e.target.value)} />
+            <input type="number"
+                   min="0"
+                   className="form-control"
+                   id="min-employee"
+                   value={minEmployee}
+                   onChange={e => setMinEmployee(e.target.value)}
+            />
           </div>
 
           <label htmlFor="min-amount">Minimum Deal Amount</label>
           <div className="input-group mb-3">
-            <input type="text" className="form-control" id="min-amount" value={minimumDealAmount} onChange={e => setMinimumDealAmount(e.target.value)} />
+            <input type="number"
+                   min="0"
+                   className="form-control"
+                   id="min-amount"
+                   value={minimumDealAmount}
+                   onChange={e => setMinimumDealAmount(e.target.value)}
+            />
           </div>
 
           <table className="table">
