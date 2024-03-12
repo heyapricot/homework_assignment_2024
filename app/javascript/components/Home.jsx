@@ -29,10 +29,13 @@ export default () => {
 
   // Fetch companies from API
   useEffect(() => {
+    const headers = new Headers();
+    headers.append("Authorization", "cb7615e298dd72441263f958e1306be1185fdff8");
+
     const fetchCompanies = setTimeout(
       async () => {
         const url = `/api/v1/companies?${new URLSearchParams(addQueryKeyToParams(queryParams())).toString()}`;
-        const response = await fetch(url);
+        const response = await fetch(url, { headers });
         const json = await response.json();
         setCompanies(json);
       }, 500

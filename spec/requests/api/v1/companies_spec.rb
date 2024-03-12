@@ -2,7 +2,8 @@ require "rails_helper"
 
 RSpec.describe "Api::V1::Companies", type: :request do
   describe "GET /api/v1/companies" do
-    before { get api_v1_companies_path }
+    let(:headers) { {Authorization: ENV["API_TOKEN"]} }
+    before { get api_v1_companies_path, headers: }
 
     it "returns a successful response" do
       expect(response).to have_http_status(:ok)
@@ -15,7 +16,7 @@ RSpec.describe "Api::V1::Companies", type: :request do
         let(:selected) { companies.sample }
         let(:unselected) { companies - [selected] }
 
-        before { get api_v1_companies_path, params: {query: {name: selected.name}} }
+        before { get api_v1_companies_path, params: {query: {name: selected.name}}, headers: }
 
         let(:expected_data) do
           [
@@ -55,7 +56,7 @@ RSpec.describe "Api::V1::Companies", type: :request do
         let(:selected) { companies.select { |company| company.industry == industry } }
         let(:unselected) { companies.reject { |company| company.industry == industry } }
 
-        before { get api_v1_companies_path, params: {query: {industry:}} }
+        before { get api_v1_companies_path, params: {query: {industry:}}, headers: }
 
         let(:expected_data) do
           selected.map do |company|
@@ -95,7 +96,7 @@ RSpec.describe "Api::V1::Companies", type: :request do
         let(:selected) { companies.select { |company| company.employee_count >= threshold } }
         let(:unselected) { companies.reject { |company| company.employee_count >= threshold } }
 
-        before { get api_v1_companies_path, params: {query: {employee_count: threshold}} }
+        before { get api_v1_companies_path, params: {query: {employee_count: threshold}}, headers: }
 
         let(:expected_data) do
           selected.map do |company|
