@@ -29,13 +29,16 @@ export default () => {
 
   // Fetch companies from API
   useEffect(() => {
-    const fetchCompanies = async () => {
-      const url = `/api/v1/companies?${new URLSearchParams(addQueryKeyToParams(queryParams())).toString()}`;
-      const response = await fetch(url);
-      const json = await response.json();
-      setCompanies(json);
-    }
-    fetchCompanies();
+    const fetchCompanies = setTimeout(
+      async () => {
+        const url = `/api/v1/companies?${new URLSearchParams(addQueryKeyToParams(queryParams())).toString()}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        setCompanies(json);
+      }, 500
+    )
+    
+    return () => clearTimeout(fetchCompanies);
   }, [companyName, industry, minEmployee, minimumDealAmount]);
 
   return (
