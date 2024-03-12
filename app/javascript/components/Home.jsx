@@ -7,18 +7,39 @@ export default () => {
   // Table filters
   const [companyName, setCompanyName] = useState("");
   const [industry, setIndustry] = useState("");
-  const [minEmployee, setMinEmployee] = useState("");
-  const [minimumDealAmount, setMinimumDealAmount] = useState("");
+  const [minEmployee, setMinEmployee] = useState("0");
+  const [minimumDealAmount, setMinimumDealAmount] = useState("0");
+
+  const addQueryKeyToParams = (params) => {
+    return Object.fromEntries(
+      Object.entries(params).map(([key, value]) => {
+        return [`query[${key}]`, value];
+      })
+    );
+  }
+
+  const queryParams = () => {
+    return {
+      employee_count: minEmployee,
+      industry: industry,
+      name: companyName,
+      total_deal_amount: minimumDealAmount
+    }
+  }
 
   // Fetch companies from API
   useEffect(() => {
-    const url = "/api/v1/companies";
-    fetch(url)
-      .then((res) => {
-        return res.json();
-      })
-      .then((res) => setCompanies(res))
-  }, [])
+    const fetchCompanies = setTimeout(
+      async () => {
+        const url = `/api/v1/companies?${new URLSearchParams(addQueryKeyToParams(queryParams())).toString()}`;
+        const response = await fetch(url);
+        const json = await response.json();
+        setCompanies(json);
+      }, 500
+    )
+
+    return () => clearTimeout(fetchCompanies);
+  }, [companyName, industry, minEmployee, minimumDealAmount]);
 
   return (
     <div className="vw-100 primary-color d-flex align-items-center justify-content-center">
@@ -38,12 +59,24 @@ export default () => {
 
           <label htmlFor="min-employee">Minimum Employee Count</label>
           <div className="input-group mb-3">
-            <input type="text" className="form-control" id="min-employee" value={minEmployee} onChange={e => setMinEmployee(e.target.value)} />
+            <input type="number"
+                   min="0"
+                   className="form-control"
+                   id="min-employee"
+                   value={minEmployee}
+                   onChange={e => setMinEmployee(e.target.value)}
+            />
           </div>
 
           <label htmlFor="min-amount">Minimum Deal Amount</label>
           <div className="input-group mb-3">
-            <input type="text" className="form-control" id="min-amount" value={minimumDealAmount} onChange={e => setMinimumDealAmount(e.target.value)} />
+            <input type="number"
+                   min="0"
+                   className="form-control"
+                   id="min-amount"
+                   value={minimumDealAmount}
+                   onChange={e => setMinimumDealAmount(e.target.value)}
+            />
           </div>
 
           <table className="table">
